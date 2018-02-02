@@ -70,10 +70,10 @@ def notSoIntelligentMatching(file, phos, chis):
 	noMatchPho = []
 	for key in chiToPhoMapping.keys():
 		if not chiToPhoMapping[key]:
-			noMatchChi.append((convertTime(key.onset), key.orig_string))
+			noMatchChi.append((str(key.onset), key.orig_string))
 	for key in phoToChiMapping.keys():
 		if not phoToChiMapping[tuple(key)]:
-			noMatchPho.append((convertTime(key[2]), key[0]))
+			noMatchPho.append((str(key[2]), key[0]))
 	return noMatchChi, noMatchPho
 
 def processFile(file):
