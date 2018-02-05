@@ -5,9 +5,9 @@ import pyclan as pc
 from sets import Set
 import sys
 
-inputDir = "./audio"
+inputDir = "./"
 #inputDir = "./"
-outputDir = "./audioOutput"
+outputDir = "./"
 usedIDFile = "./usedID.txt"
 
 def randomID():
@@ -33,7 +33,7 @@ def processPhoLine(line):
 	return '%pho:\t'+'\t'.join(phos)+'\n'
 
 def processLine(line):
-	if line.startswith('%xcom'): #This is a usercomment
+	if line.startswith('%xcom') or line.startswith('%com'): #This is a usercomment
 		return line.rstrip() + '####' + randomID() + '\n'
 	elif line.startswith('%pho'): #This is a pho line
 		return processPhoLine(line)
