@@ -38,7 +38,7 @@ def processLine(line):
 	elif line.startswith('%pho'): #This is a pho line
 		return processPhoLine(line)
 	else:
-		return re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z]{3}', replFunction, line)
+		return re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z0-9]{3}', replFunction, line)
 
 def processFile(file):
 	clan_file = pc.ClanFile(os.path.join(inputDir, file))
