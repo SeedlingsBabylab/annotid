@@ -5,10 +5,10 @@ import pyclan as pc
 from sets import Set
 import sys
 
-inputDir = "./all_cha"
+inputDir = "/Users/estellehe/Documents/BLAB/workspace/clan/audio copy/"
 #inputDir = "./"
-outputDir = "./"
-usedIDFile = "./usedID.txt"
+outputDir = "/Users/estellehe/Documents/BLAB/workspace/clan/audioid/"
+usedIDFile = "/Users/estellehe/Documents/BLAB/workspace/clan/usedID.txt"
 
 def randomID():
 	randID = uuid.uuid4().hex[:9]
@@ -41,7 +41,7 @@ def processLine(line):
 		return re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z]{3}', replFunction, line)
 
 def processFile(file):
-	lines, flattenedlines, fodict, ofdict = pc.flatten(file)
+	lines, flattenedlines, fodict, ofdict = pc.flatten(os.path.join(inputDir,file))
 	for i in range(len(flattenedlines)):
 		line = flattenedlines[i]
 		if line.startswith('%xcom') or line.startswith('%com'):
@@ -51,7 +51,7 @@ def processFile(file):
 	for i in range(len(lines)):
 		line = lines[i]
 		lines[i] = re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z]{3}', replFunction, line)
-	with open('output.txt', 'w') as f:
+	with open(os.path.join(outputDir, file), 'w') as f:
 		f.write(''.join(lines))
 
 files = os.listdir(inputDir)
