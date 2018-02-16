@@ -5,7 +5,7 @@ import pyclan as pc
 from sets import Set
 import sys
 
-inputDir = "./"
+inputDir = "./all_cha"
 #inputDir = "./"
 outputDir = "./"
 usedIDFile = "./usedID.txt"
@@ -24,7 +24,7 @@ def processPhoLine(line):
 	try:
 		content = line.strip().split('\t', 1)[1].rstrip()
 	except:
-		return '%pho:\t\n'
+		return '%pho:\t_{}\n'.format(randomID())
 	if(content.find('\t')>=0):
 		phos = content.split('\t')
 	else:
@@ -38,14 +38,21 @@ def processLine(line):
 	elif line.startswith('%pho'): #This is a pho line
 		return processPhoLine(line)
 	else:
-		return re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z0-9]{3}', replFunction, line)
+		return re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z]{3}', replFunction, line)
 
 def processFile(file):
-	clan_file = pc.ClanFile(os.path.join(inputDir, file))
-	clan_file.flatten()
-	for line in clan_file.line_map:
-		line.line = processLine(line.line)
-	clan_file.write_to_cha(os.path.join(outputDir, file))
+	lines, flattenedlines, fodict, ofdict = pc.flatten(file)
+	for i in range(len(flattenedlines)):
+		line = flattenedlines[i]
+		if line.startswith('%xcom') or line.startswith('%com'):
+			lines[fodict[i][-1]] = lines[fodict[i][-1]].rstrip() + "####" + randomID() + '\n'
+		elif line.startswith('%pho'):
+			lines[fodict[i][-1]] = processPhoLine(line)
+	for i in range(len(lines)):
+		line = lines[i]
+		lines[i] = re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z]{3}', replFunction, line)
+	with open('output.txt', 'w') as f:
+		f.write(''.join(lines))
 
 files = os.listdir(inputDir)
 files.sort()
@@ -67,7 +74,8 @@ for file in files:
 	if file.endswith('.cha'):
 		try:
 			processFile(file)
-		except:
+		except Exception,e:
+			print(e)
 			errorFiles.append(file)
 	counter += 1
 	print("Finished: {}".format(counter/float(len(files))*100))
