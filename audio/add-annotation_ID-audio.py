@@ -38,21 +38,26 @@ def processLine(line):
 	elif line.startswith('%pho'): #This is a pho line
 		return processPhoLine(line)
 	else:
-		return re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z]{3}', replFunction, line)
+		return re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z0-9]{3}', replFunction, line)
 
 def processFile(file):
-	lines, flattenedlines, fodict, ofdict = pc.flatten(file)
+	flattenedlines, breaks = pc.flatten(os.path.join(inputDir, file))
 	for i in range(len(flattenedlines)):
 		line = flattenedlines[i]
 		if line.startswith('%xcom') or line.startswith('%com'):
-			lines[fodict[i][-1]] = lines[fodict[i][-1]].rstrip() + "####" + randomID() + '\n'
+			flattenedlines[i] = flattenedlines[i].rstrip() + "####" + randomID() + '\n'
 		elif line.startswith('%pho'):
-			lines[fodict[i][-1]] = processPhoLine(line)
-	for i in range(len(lines)):
-		line = lines[i]
-		lines[i] = re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z]{3}', replFunction, line)
-	with open('output.txt', 'w') as f:
-		f.write(''.join(lines))
+			flattenedlines[i] = processPhoLine(line)
+	with open(os.path.join(outputDir, file), 'w') as f:
+		for i in range(len(flattenedlines)):
+			if len(breaks[i])>1:
+				for j in range(len(breaks[i])-1):
+					substr = flattenedlines[i][breaks[i][j]:breaks[i][j+1]]
+					f.write(re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z0-9]{3}', replFunction, substr) + '\n')
+				substr = flattenedlines[i][breaks[i][-1]:]
+				f.write(re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z0-9]{3}', replFunction, substr))
+			else:
+				f.write(re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z0-9]{3}', replFunction, flattenedlines[i]))
 
 files = os.listdir(inputDir)
 files.sort()
