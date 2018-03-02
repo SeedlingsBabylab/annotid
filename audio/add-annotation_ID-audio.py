@@ -44,7 +44,7 @@ def processFile(file):
 	flattenedlines, breaks = pc.filters._preparse_flatten(os.path.join(inputDir, file))
 	for i in range(len(flattenedlines)):
 		line = flattenedlines[i]
-		if line.startswith('%xcom') or line.startswith('%com'):
+		if (line.startswith('%xcom') or line.startswith('%com')) and (line.count('|')<=3):
 			flattenedlines[i] = flattenedlines[i].rstrip() + "####" + randomID() + '\n'
 		elif line.startswith('%pho'):
 			flattenedlines[i] = processPhoLine(line)
