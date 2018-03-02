@@ -79,10 +79,7 @@ def notSoIntelligentMatching(file, phos, chis):
 def processFile(file):
 	clan_file = pc.ClanFile(os.path.join(inputDir, file))
 	phos = [x for x in clan_file.line_map if x.line.startswith("%pho:")]
-	annotations = []
-	for annot in clan_file.annotations():
-		annotations.extend(annot)
-	chis = [x for x in annotations if x.speaker == "CHI"]
+	chis = [x for x in clan_file.annotations() if x.speaker == "CHI"]
 	sorted_phos = sorted(list(set(phos)), key=lambda x: x.index) #This sorting might be unnecessary
 	phos = []
 
