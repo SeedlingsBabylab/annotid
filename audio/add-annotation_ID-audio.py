@@ -5,10 +5,10 @@ import pyclan as pc
 from sets import Set
 import sys
 
-inputDir = "./all_cha"
+inputDir = "/Users/estellehe/Documents/BLAB/workspace/clan/audio copy/"
 #inputDir = "./"
-outputDir = "./"
-usedIDFile = "./usedID.txt"
+outputDir = "/Users/estellehe/Documents/BLAB/workspace/clan/audioid/"
+usedIDFile = "/Users/estellehe/Documents/BLAB/workspace/clan/usedID.txt"
 
 def randomID():
 	randID = uuid.uuid4().hex[:9]
@@ -41,12 +41,24 @@ def processLine(line):
 		return re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z0-9]{3}', replFunction, line)
 
 def processFile(file):
+<<<<<<< HEAD
+	lines, flattenedlines, fodict, ofdict = pc.flatten(os.path.join(inputDir,file))
+=======
 	flattenedlines, breaks = pc.flatten(os.path.join(inputDir, file))
+>>>>>>> c5f4112244b111280bcec6fa89578bdd5e196489
 	for i in range(len(flattenedlines)):
 		line = flattenedlines[i]
 		if line.startswith('%xcom') or line.startswith('%com'):
 			flattenedlines[i] = flattenedlines[i].rstrip() + "####" + randomID() + '\n'
 		elif line.startswith('%pho'):
+<<<<<<< HEAD
+			lines[fodict[i][-1]] = processPhoLine(line)
+	for i in range(len(lines)):
+		line = lines[i]
+		lines[i] = re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z]{3}', replFunction, line)
+	with open(os.path.join(outputDir, file), 'w') as f:
+		f.write(''.join(lines))
+=======
 			flattenedlines[i] = processPhoLine(line)
 	with open(os.path.join(outputDir, file), 'w') as f:
 		for i in range(len(flattenedlines)):
@@ -58,6 +70,7 @@ def processFile(file):
 				f.write(re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z0-9]{3}', replFunction, substr))
 			else:
 				f.write(re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z0-9]{3}', replFunction, flattenedlines[i]))
+>>>>>>> c5f4112244b111280bcec6fa89578bdd5e196489
 
 files = os.listdir(inputDir)
 files.sort()
