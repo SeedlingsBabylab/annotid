@@ -5,10 +5,10 @@ import pyclan as pc
 from sets import Set
 import sys
 
-inputDir = "./all_cha"
+inputDir = "/Users/estellehe/Documents/BLAB/workspace/clan/audio"
 #inputDir = "./"
-outputDir = "./all_cha_with_id"
-usedIDFile = "./usedID.txt"
+outputDir = "/Users/estellehe/Documents/BLAB/workspace/clan/audioid"
+usedIDFile = "/Users/estellehe/Documents/BLAB/workspace/clan/usedID.txt"
 
 def randomID():
 	randID = uuid.uuid4().hex[:9]
@@ -53,7 +53,7 @@ def processFile(file):
 			if len(breaks[i])>1:
 				for j in range(len(breaks[i])-1):
 					substr = flattenedlines[i][breaks[i][j]:breaks[i][j+1]]
-					f.write(re.sub(r'&=[a-z]{1}_[A-Za-z]{1}_[A-Za-z0-9]{3}', replFunction, substr) + '\n')
+					f.write(re.sub(r'&=[a-z]{1}_[A-Za-z]{1}_[A-Za-z0-9]{3}', replFunction, substr) + '\n\t')
 				substr = flattenedlines[i][breaks[i][-1]:]
 				f.write(re.sub(r'&=[a-z]{1}_[A-Za-z]{1}_[A-Za-z0-9]{3}', replFunction, substr))
 			else:
