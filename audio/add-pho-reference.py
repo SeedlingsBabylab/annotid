@@ -6,8 +6,8 @@ import pyclan as pc
 from sets import Set
 from itertools import groupby
 
-inputDir = "./audioOutput"
-outputDir = "./audio_output_with_ref"
+inputDir = "./all_cha_with_id"
+outputDir = "./all_cha_output_with_ref"
 
 class ChaFileError(Exception):
     def __init__(self, message, errors):
@@ -78,11 +78,11 @@ def notSoIntelligentMatching(file, phos, chis):
 
 def processFile(file):
 	clan_file = pc.ClanFile(os.path.join(inputDir, file))
-	clan_file.flatten()
-	clan_file.reindex()
-	clan_file.annotate()
 	phos = [x for x in clan_file.line_map if x.line.startswith("%pho:")]
-	chis = [x for x in clan_file.annotations() if x.speaker == "CHI"]
+	annotations = []
+	for annot in clan_file.annotations():
+		annotations.extend(annot)
+	chis = [x for x in annotations if x.speaker == "CHI"]
 	sorted_phos = sorted(list(set(phos)), key=lambda x: x.index) #This sorting might be unnecessary
 	phos = []
 
