@@ -38,7 +38,7 @@ def processLine(line):
 	elif line.startswith('%pho'): #This is a pho line
 		return processPhoLine(line)
 	else:
-		return re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z0-9]{3}', replFunction, line)
+		return re.sub(r'&=[a-z]{1}_[A-Za-z]{1}_[A-Za-z0-9]{3}', replFunction, line)
 
 def processFile(file):
 	flattenedlines, breaks = pc.filters._preparse_flatten(os.path.join(inputDir, file))
@@ -53,11 +53,11 @@ def processFile(file):
 			if len(breaks[i])>1:
 				for j in range(len(breaks[i])-1):
 					substr = flattenedlines[i][breaks[i][j]:breaks[i][j+1]]
-					f.write(re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z0-9]{3}', replFunction, substr) + '\n')
+					f.write(re.sub(r'&=[a-z]{1}_[A-Za-z]{1}_[A-Za-z0-9]{3}', replFunction, substr) + '\n')
 				substr = flattenedlines[i][breaks[i][-1]:]
-				f.write(re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z0-9]{3}', replFunction, substr))
+				f.write(re.sub(r'&=[a-z]{1}_[A-Za-z]{1}_[A-Za-z0-9]{3}', replFunction, substr))
 			else:
-				f.write(re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z0-9]{3}', replFunction, flattenedlines[i]))
+				f.write(re.sub(r'&=[a-z]{1}_[A-Za-z]{1}_[A-Za-z0-9]{3}', replFunction, flattenedlines[i]))
 
 files = os.listdir(inputDir)
 files.sort()
