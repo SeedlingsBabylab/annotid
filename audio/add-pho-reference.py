@@ -120,7 +120,7 @@ files.sort()
 counter = 0
 
 errorFile = open('audio_pho_ref_error.txt', 'w')
-
+errors = []
 
 if '--fix-error' in sys.argv: #Only process files with error
 	files = []
@@ -151,7 +151,8 @@ for file in files:
 				errorFile.write('\n')
 				errorFile.flush()
 			else:
-				print e
+				errors.append(file)
 	counter += 1
 	print("Finished: {}".format(counter/float(len(files))*100))
 errorFile.close()
+print errors
