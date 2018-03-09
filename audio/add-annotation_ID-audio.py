@@ -5,10 +5,10 @@ import pyclan as pc
 from sets import Set
 import sys
 
-inputDir = "./"
+inputDir = "/Users/estellehe/Documents/BLAB/workspace/clan/audio"
 #inputDir = "./"
-outputDir = "./"
-usedIDFile = "./usedID.txt"
+outputDir = "/Users/estellehe/Documents/BLAB/workspace/clan/audioid"
+usedIDFile = "/Users/estellehe/Documents/BLAB/workspace/clan/usedID.txt"
 
 def randomID():
 	randID = uuid.uuid4().hex[:9]
@@ -24,7 +24,7 @@ def processPhoLine(line):
 	try:
 		content = line.strip().split('\t', 1)[1].rstrip()
 	except:
-		return '%pho:\t\n'
+		return '%pho:\t_{}\n'.format(randomID())
 	if(content.find('\t')>=0):
 		phos = content.split('\t')
 	else:
@@ -33,19 +33,31 @@ def processPhoLine(line):
 	return '%pho:\t'+'\t'.join(phos)+'\n'
 
 def processLine(line):
-	if line.startswith('%xcom') or line.startswith('%com'): #This is a usercomment
+	if (line.startswith('%xcom') or line.startswith('%com')) and (line.count('|')<=3): #This is a usercomment
 		return line.rstrip() + '####' + randomID() + '\n'
 	elif line.startswith('%pho'): #This is a pho line
 		return processPhoLine(line)
 	else:
-		return re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Za-z0-9]{3}', replFunction, line)
+		return re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Z]{2}[A-Z0-9]{1}', replFunction, line)
 
 def processFile(file):
-	clan_file = pc.ClanFile(os.path.join(inputDir, file))
-	clan_file.flatten()
-	for line in clan_file.line_map:
-		line.line = processLine(line.line)
-	clan_file.write_to_cha(os.path.join(outputDir, file))
+	flattenedlines, breaks = pc.filters._preparse_flatten(os.path.join(inputDir, file))
+	for i in range(len(flattenedlines)):
+		line = flattenedlines[i]
+		if (line.startswith('%xcom') or line.startswith('%com')) and (line.count('|')<=3):
+			flattenedlines[i] = flattenedlines[i].rstrip() + "####" + randomID() + '\n'
+		elif line.startswith('%pho'):
+			flattenedlines[i] = processPhoLine(line)
+	with open(os.path.join(outputDir, file), 'w') as f:
+		for i in range(len(flattenedlines)):
+			if len(breaks[i])>1:
+				for j in range(len(breaks[i])-1):
+					substr = flattenedlines[i][breaks[i][j]:breaks[i][j+1]]
+					f.write(re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Z]{2}[A-Z0-9]{1}', replFunction, substr) + '\n\t')
+				substr = flattenedlines[i][breaks[i][-1]:]
+				f.write(re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Z]{2}[A-Z0-9]{1}', replFunction, substr))
+			else:
+				f.write(re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Z]{2}[A-Z0-9]{1}', replFunction, flattenedlines[i]))
 
 files = os.listdir(inputDir)
 files.sort()
@@ -67,7 +79,8 @@ for file in files:
 	if file.endswith('.cha'):
 		try:
 			processFile(file)
-		except:
+		except Exception,e:
+			print(e)
 			errorFiles.append(file)
 	counter += 1
 	print("Finished: {}".format(counter/float(len(files))*100))
