@@ -6,4 +6,4 @@ This repository contains scripts that performs the following tasks:
 4. Addition of ID references between pho and chi, as well as detecting audio annotation file errors along the way
 
 ## Instruction
-All those scripts requires setting the input/output file path before running. To run the audio processing scripts, pyclan is required
+All those scripts require setting the input/output file path inside of the script before running. To run the audio processing scripts, pyclan is required
