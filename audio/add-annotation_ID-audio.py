@@ -13,47 +13,7 @@ def randomID():
 	usedID.add(randID)
 	return randID
 
-def replFunction(match):
-	return match.group(0)+'_'+randomID()
 
-# def processPhoLine(line):
-# 	try:
-# 		content = line.strip().split('\t', 1)[1].rstrip()
-# 	except:
-# 		return '%pho:\t_{}\n'.format(randomID())
-# 	if(content.find('\t')>=0):
-# 		phos = content.split('\t')
-# 	else:
-# 		phos = content.split(' ')
-# 	phos = [pho+'_'+randomID() for pho in phos]
-# 	return '%pho:\t'+'\t'.join(phos)+'\n'
-
-# def processLine(line):
-# 	if (line.startswith('%xcom') or line.startswith('%com')) and (line.count('|')<=3): #This is a usercomment
-# 		return line.rstrip() + '####' + randomID() + '\n'
-# 	elif line.startswith('%pho'): #This is a pho line
-# 		return processPhoLine(line)
-# 	else:
-# 		return re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Z]{2}[A-Z0-9]{1}', replFunction, line)
-
-# def processFile(in_file, out_file):
-# 	flattenedlines, breaks = pc.filters._preparse_flatten(in_file)
-# 	for i in range(len(flattenedlines)):
-# 		line = flattenedlines[i]
-# 		if (line.startswith('%xcom') or line.startswith('%com')) and (line.count('|')<=3):
-# 			flattenedlines[i] = flattenedlines[i].rstrip() + "####" + randomID() + '\n'
-# 		elif line.startswith('%pho'):
-# 			flattenedlines[i] = processPhoLine(line)
-# 	with open(out_file, 'w') as f:
-# 		for i in range(len(flattenedlines)):
-# 			if len(breaks[i])>1:
-# 				for j in range(len(breaks[i])-1):
-# 					substr = flattenedlines[i][breaks[i][j]:breaks[i][j+1]]
-# 					f.write(re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Z]{2}[A-Z0-9]{1}', replFunction, substr) + '\n\t')
-# 				substr = flattenedlines[i][breaks[i][-1]:]
-# 				f.write(re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Z]{2}[A-Z0-9]{1}', replFunction, substr))
-# 			else:
-# 				f.write(re.sub(r'&=[a-z]{1}_[a-z]{1}_[A-Z]{2}[A-Z0-9]{1}', replFunction, flattenedlines[i]))
 
 def process_file(in_file, out_file):
 	clan_file = pc.ClanFile(in_file)
@@ -69,7 +29,6 @@ def process_file(in_file, out_file):
 					print("adding")
 					# print(''.join(match))
 					# print(re.sub(''.join(match), ''.join(match)+'_'+randomID(), new_line))
-					# new_line = re.sub(''.join(match), replFunction, new_line)
 					new_line = new_line.replace(''.join(match), ''.join(match)+'_'+randomID())
 					pass
 				else:				# if there is an id for this annot
@@ -117,7 +76,7 @@ if __name__ == "__main__":
 			counter += 1
 			print("Finished: {}".format(counter/float(len(files))*100))
 
-		with open(usedIDFile, 'a') as f:
+		with open(usedIDFile, 'w') as f: # not 'a' because not adding (or will introduce duplicates, and size of file+++)
 			for id in usedID:
 				f.write(id + '\n')
 
@@ -138,7 +97,7 @@ if __name__ == "__main__":
 
 		# process file
 		try:
-			process_file(in_file, out_file)
+			process_file(in_file, out_file, usedID)
 		except Exception,e:
 			print(file)
 			print(e)

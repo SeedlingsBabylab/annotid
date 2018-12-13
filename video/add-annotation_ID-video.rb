@@ -4,8 +4,9 @@ require 'securerandom'
 # $inputDir = "~/Documents/Projects/Bergelson Lab/annotation/video_with_pho"
 # $outputDir = "~/Documents/Projects/Bergelson Lab/annotation/video_with_pho_output"
 
-$inputDir = "/Volumes/pn-opus/Seedlings/Working_Files/annot_id/video"
-$outputDir = "/Volumes/pn-opus/Seedlings/Working_Files/annot_id/video/output"
+$inputDir = "/Volumes/pn-opus/Seedlings/Working_Files/annot_id/video/full_files/"
+$outputDir = "/Volumes/pn-opus/Seedlings/Working_Files/annot_id/video/output/"
+$usedIDFile = "/Volumes/pn-opus/Seedlings/Working_Files/annot_id/video/usedID.txt"
 
 def randomID
 	randID = SecureRandom.uuid
@@ -47,13 +48,19 @@ end
 begin
 	outDir = File.expand_path($outputDir)
 	dataDir = File.expand_path($inputDir)
+	# retrieve used IDs
 	$usedID = Set.new
+	fID = open $usedIDFile
+	fID.each do |line|
+		$usedID << line
+	end
 	files = Dir.new(dataDir).entries.sort
 	counter = 0
 	errorFile = Array.new
 	for file in files
 		if file.end_with? ('.opf')
 			begin
+				puts file
 				addID(dataDir, file, outDir)
 			rescue
 				errorFile << file
@@ -63,7 +70,8 @@ begin
 		counter += 1
 		print("Finished: ", counter/(files.size.to_f-2)*100, "\n")
 	end
-	File.open(File.join(outDir, 'usedID.txt'), 'w') {
+	# File.open(File.join(outDir, 'usedID.txt'), 'w') {
+	File.open($usedIDFile, 'w') {
 		|file|
 		for id in $usedID
 			file.write(id + "\n")
