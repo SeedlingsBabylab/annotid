@@ -30,10 +30,12 @@ def process_file(in_file, out_file):
 					# print("adding")
 					# print(''.join(match))
 					# print(re.sub(''.join(match), ''.join(match)+'_'+randomID(), new_line))
-					new_line = new_line.replace(''.join(match), ''.join(match)+'_'+randomID())
+					new_line = new_line.replace(''.join(match)+' ', ''.join(match)+'_0x'+randomID()+' ', 1)
+
 					pass
 				else:				# if there is an id for this annot
 					pass			# do not change
+		# print(new_line)
 		out.append(new_line)
 	with open(out_file, 'w') as f:
 		for l in out:

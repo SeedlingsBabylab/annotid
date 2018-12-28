@@ -4,17 +4,18 @@ require 'securerandom'
 # $inputDir = "~/Documents/Projects/Bergelson Lab/annotation/video_with_pho"
 # $outputDir = "~/Documents/Projects/Bergelson Lab/annotation/video_with_pho_output"
 
-$inputDir = "/Volumes/pn-opus/Seedlings/Working_Files/annot_id/video/full_files/"
+$inputDir = "/Volumes/pn-opus/Seedlings/Working_Files/annot_id/video/opf_sc/"
 $outputDir = "/Volumes/pn-opus/Seedlings/Working_Files/annot_id/video/output/"
-$usedIDFile = "/Volumes/pn-opus/Seedlings/Working_Files/annot_id/video/usedID.txt"
+$usedIDFile = "/Volumes/pn-opus/Seedlings/usedID.txt"
+# $usedIDFile = "/Volumes/pn-opus/Seedlings/Working_Files/annot_id/video/usedID.txt"
 
 def randomID
 	randID = SecureRandom.uuid
-	randID = randID[0..5]
+	randID = "0x"+randID[0..5]
 	while($usedID.include?(randID))
 		p "ID Collision"
 		randID = SecureRandom.uuid
-		randID = randID[0..5]
+		randID = "0x"+randID[0..5]
 	end
 	$usedID << randID
 	return randID
