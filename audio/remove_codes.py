@@ -11,7 +11,7 @@ if __name__ == "__main__":
    f= open(fn)
    data = mmap.mmap(f.fileno(), size, access=mmap.ACCESS_READ)
 
-   m = re.sub(r"_0x[0-9a-f]{6}", '', data)
+   m = re.sub(r"_0x[0-9a-f]{6}", data)
 
    with open(fn, 'w') as f:
        f.write(m)
