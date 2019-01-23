@@ -31,7 +31,9 @@ def process_file(in_file, out_file):
 					# print(''.join(match))
 					# print(re.sub(''.join(match), ''.join(match)+'_'+randomID(), new_line))
 					id = randomID()
+					print(new_line)
 					new_line = new_line.replace(''.join(match)+' ', ''.join(match)+'_0x'+id+' ', 1)
+					print(new_line)
 					print("adding 0x"+id)
 					pass
 				else:				# if there is an id for this annot
