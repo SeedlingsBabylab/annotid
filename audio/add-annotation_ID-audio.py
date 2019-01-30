@@ -23,17 +23,20 @@ def process_file(in_file, out_file):
 		matches = pc.code_regx.findall(l.line)
 		new_line = l.line
 		if len(matches)>0: 	# if there is an annotation on the line
+
 			for match in matches: 	# for each annotation
 				# print(match, len(match))
+				# print(match[-1], match[-2])
 				if match[-1]=='' and match[-2]=='':	# if there is no id for this annot
+					# print(l.line)
 					# replace match by its ID-ed version
 
 					# print(''.join(match))
 					# print(re.sub(''.join(match), ''.join(match)+'_'+randomID(), new_line))
 					id = randomID()
-					print(new_line)
+					# print(new_line)
 					new_line = new_line.replace(''.join(match)+' ', ''.join(match)+'_0x'+id+' ', 1)
-					print(new_line)
+					# print(new_line)
 					print("adding 0x"+id)
 					pass
 				else:				# if there is an id for this annot
@@ -100,6 +103,7 @@ if __name__ == "__main__":
 			out_file = sys.argv[2]
 		else:
 			out_file = in_file
+		print(out_file)
 		# retrieve used id
 		usedID = Set([])
 		with open(usedID_file) as f:
