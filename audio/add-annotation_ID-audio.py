@@ -9,7 +9,7 @@ import sys
 
 def randomID():
 	randID = uuid.uuid4().hex[:6]
-	while randID in usedID:
+	while '0x'+randID in usedID:
 		randID = uuid.uuid4().hex[:6]
 	usedID.add(randID)
 	return randID
@@ -17,13 +17,15 @@ def randomID():
 
 
 def process_file(in_file, out_file):
+	print("opening")
 	clan_file = pc.ClanFile(in_file)
+	print("done opening")
 	out = []
 	for l in clan_file.line_map:
 		matches = pc.code_regx.findall(l.line)
 		new_line = l.line
 		if len(matches)>0: 	# if there is an annotation on the line
-
+			# print(l)
 			for match in matches: 	# for each annotation
 				# print(match, len(match))
 				# print(match[-1], match[-2])
@@ -111,11 +113,11 @@ if __name__ == "__main__":
 				usedID.add(line.rstrip())
 
 		# process file
-		try:
-			process_file(in_file, out_file)
-		except Exception,e:
-			print(file)
-			print(e)
+		# try:
+		process_file(in_file, out_file)
+		# except Exception,e:
+		# 	print(file)
+		# 	print(e)
 
 		# update used id
 		with open(usedID_file, 'w') as f:
