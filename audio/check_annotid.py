@@ -14,6 +14,8 @@ if __name__ == "__main__":
             usedID.add(line.rstrip())
 
     cha_folder = sys.argv[1]
+    if not cha_folder.startswith('/'):
+        cha_folder = os.path.join(os.getcwd(), cha_folder)
 
     error = []
     pattern = '[0-9a-zA-Z+]+\s&=[^\s]*0x[0-9a-z]{6}'
