@@ -2,9 +2,16 @@ import sys
 import os
 import re
 import csv
+from sets import Set
+
+usedID_file = "/Volumes/pn-opus/Seedlings/usedID.txt"
 
 if __name__ == "__main__":
 
+    usedID = Set([])
+    with open(usedID_file) as f:
+        for line in f.readlines():
+            usedID.add(line.rstrip())
 
     cha_folder = sys.argv[1]
 
@@ -21,10 +28,12 @@ if __name__ == "__main__":
                     if len(match):
                         for m in match:
                             if not re.match(pattern, m):
-                                error.append([os.path.join(cha_folder, fname), m, line.split(' ')[-1].strip()])
+                                error.append([os.path.join(cha_folder, fname), m, line.split(' ')[-1].strip(), 'missing ID'])
+                            elif m[len(m)-8:] not in usedID:
+                                error.append([os.path.join(cha_folder, fname), m, line.split(' ')[-1].strip(), 'ID not in usedID'])
 
     with open(os.path.join(cha_folder, "error_summary.csv"), 'w') as csvf:
         writer = csv.writer(csvf)
-        writer.writerow(["file name", "line", "timestamp"])
+        writer.writerow(["file name", "line", "timestamp", 'error type'])
         for e in error:
             writer.writerow(e)
