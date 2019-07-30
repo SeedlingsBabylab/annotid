@@ -6,8 +6,8 @@ import pyclan as pc
 from sets import Set
 from itertools import groupby
 
-inputDir = "./all_cha_with_id"
-outputDir = "./all_cha_output_with_ref"
+inputDir = sys.argv[1]
+outputDir = sys.argv[2]
 
 class ChaFileError(Exception):
     def __init__(self, message, errors):
@@ -99,6 +99,9 @@ def processFile(file):
 					phos.append([result, pho.index, pho.onset])
 
 	if len(phos) != len(chis):
+		print(phos)
+		print([(c, c.onset) for c in chis])
+		print(len(phos), len(chis))
 		raise LineNumberMismatchError('Mismatch number of %pho and CHI', (phos, chis))
 	else:
 		for idx in range(len(chis)):
@@ -126,15 +129,16 @@ if '--fix-error' in sys.argv: #Only process files with error
 			files.append(line.rstrip().strip('\''))
 
 for file in files:
-	print file
+
 	if file.endswith('.cha'):
+		print file
 		try:
 			processFile(file)
 		except Exception, e:
 			if isinstance(e, ChaFileError):
 				errorFile.write(e.errors[0]+': '+'\n')
 				errorFile.write('\t'+e.message+'\n')
-				errorFile.wrtie('\t\t')
+				errorFile.write('\t\t')
 				errorFile.write('\n\t\t'.join(e.errors[1]))
 				errorFile.write('\n')
 				errorFile.flush()

@@ -8,3 +8,13 @@ This repository contains scripts that performs the following tasks:
 
 ## Instruction
 All those scripts require setting the input/output file path inside of the script before running. To run the audio processing scripts, pyclan is required
+
+
+### retrieve_codes.py usage
+
+$ python retrieve_codes.py ../scatter/path_files/cha_sparse_code_paths.txt ../scatter/video_sparse_code_paths.txt batch
+
+
+### delete_space_before_code.py
+
+Correct mistake made when using script from one_time_scripts/replace_used_id.py (additional space inserted)
