@@ -2,7 +2,6 @@ import os
 import platform
 import re
 import uuid
-import pyclan as pc
 from sets import Set
 import sys
 import argparse
@@ -13,7 +12,7 @@ def randomID():
     randID = uuid.uuid4().hex[:6]
     while '0x'+randID in usedID:
         randID = uuid.uuid4().hex[:6]
-    usedID.add(randID)
+    usedID.add('0x'+randID)
     return randID
 
 
@@ -25,7 +24,7 @@ def process_file(ifile, out_file):
         out = []
         for l in in_file:
                 matches = code_regx.findall(l)
-                new_line = l.strip()
+                new_line = l #.strip()
                 if len(matches)>0:     # if there is an annotation on the line
                         # print(l)
                         for match in matches:     # for each annotation
