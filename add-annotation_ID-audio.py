@@ -23,9 +23,9 @@ def process_file(ifile, out_file):
     with open(ifile) as in_file:
         print("done opening")
         out = []
-        for l in clan_file.line_map:
-                matches = code_regx.findall(l.line)
-                new_line = l.line
+        for l in in_file:
+                matches = code_regx.findall(l)
+                new_line = l.strip()
                 if len(matches)>0:     # if there is an annotation on the line
                         # print(l)
                         for match in matches:     # for each annotation
