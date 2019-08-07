@@ -20,33 +20,33 @@ def randomID():
 
 def process_file(ifile, out_file):
     print("opening")
-        with open(ifile) as in_file:
-            print("done opening")
-            out = []
-            for l in clan_file.line_map:
-                    matches = code_regx.findall(l.line)
-                    new_line = l.line
-                    if len(matches)>0:     # if there is an annotation on the line
-                            # print(l)
-                            for match in matches:     # for each annotation
-                                    # print(match, len(match))
-                                    # print(match[-1], match[-2])
-                                    if match[-1]=='' and match[-2]=='':    # if there is no id for this annot
-                                            # print(l.line)
-                                            # replace match by its ID-ed version
+    with open(ifile) as in_file:
+        print("done opening")
+        out = []
+        for l in clan_file.line_map:
+                matches = code_regx.findall(l.line)
+                new_line = l.line
+                if len(matches)>0:     # if there is an annotation on the line
+                        # print(l)
+                        for match in matches:     # for each annotation
+                                # print(match, len(match))
+                                # print(match[-1], match[-2])
+                                if match[-1]=='' and match[-2]=='':    # if there is no id for this annot
+                                        # print(l.line)
+                                        # replace match by its ID-ed version
 
-                                            # print(''.join(match))
-                                            # print(re.sub(''.join(match), ''.join(match)+'_'+randomID(), new_line))
-                                            id = randomID()
-                                            # print(new_line)
-                                            new_line = new_line.replace(''.join(match)+' ', ''.join(match)+'_0x'+id+' ', 1)
-                                            # print(new_line)
-                                            print("adding 0x"+id)
-                                            pass
-                                    else:                # if there is an id for this annot
-                                            pass            # do not change
-                    # print(new_line)
-                    out.append(new_line)
+                                        # print(''.join(match))
+                                        # print(re.sub(''.join(match), ''.join(match)+'_'+randomID(), new_line))
+                                        id = randomID()
+                                        # print(new_line)
+                                        new_line = new_line.replace(''.join(match)+' ', ''.join(match)+'_0x'+id+' ', 1)
+                                        # print(new_line)
+                                        print("adding 0x"+id)
+                                        pass
+                                else:                # if there is an id for this annot
+                                        pass            # do not change
+                # print(new_line)
+                out.append(new_line)
     # print(out_file)
     with open(out_file, 'w') as f:
         for l in out:
