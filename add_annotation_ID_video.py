@@ -2,6 +2,7 @@ import argparse
 import zipfile
 import re
 from sets import Set
+import tempfile
 
 # For now, usedIDs are loaded into a global variable (a set), then written out from there. 
 usedID = ([])
@@ -50,39 +51,37 @@ if __name__ == "__main__":
     code_time = re.compile("\d{2}\:\d{2}\:\d{2}\:\d{3}")
 
 
+        # Try to open the opf file as a zip file
+        try:
+            if not args.opf_file.endswith('.opf'):
+                print("Supplied file does not have an .opf extension!")
+            
+            # Opening the zipfile itself (not one of the member files)
+            with zipfile.ZipFile(args.opf_file, "r") as zf:
+                print("A zip file was supplied")
 
-    
-    
+                # Making sure that the zip file contains a file called db. That appears to be a default for opf files. 
+                assert "db" in zf.namelist()
 
-    # Try to open the opf file as a zip file
-    try:
-        if not args.opf_file.endswith('.opf'):
-            print("Supplied file does not have an .opf extension!")
-        with zipfile.ZipFile(args.opf_file, "r") as zf:
-            print("A zip file was supplied")
+                # The db file is the cha-like file which contains our annotations (and timestamps, etc.)
+                with zf.open("db") as db:
+                    for line in db:
 
-            # Making sure that the zip file contains a file called db. That appears to be a default for opf files. 
-            assert "db" in zf.namelist()
+                        # Line contains a time stamp! Which means an annotation! 
+                        if code_time.search(line):
 
-            # The db file is the cha-like file which contains our annotations (and timestamps, etc.)
-            with zf.open("db") as db:
-                for line in db:
+                            # Check to see if the line already contains an annotid! If it does, continue
+                            if code_hex.search(line):
+                                print("matched")
+                                print(line)
+                                continue 
 
-                    # Line contains a time stamp! Which means an annotation! 
-                    if code_time.search(line):
-
-                        # Check to see if the line already contains an annotid! If it does, continue
-                        if code_hex.search(line):
-                            print("matched")
-                            print(line)
-                            continue 
-
-                        # No annotid. Adding annotid to line here! 
-                        else:
-                            print('unmatched')
-                            print(line)
+                            # No annotid. Adding annotid to line here! 
+                            else:
+                                print('unmatched')
+                                print(line)
 
 
-    except(zipfile.BadZipfile):
-        print("Bad zip file! The file does not look to be a zip file!")
-        exit()
+        except(zipfile.BadZipfile):
+            print("Bad zip file! The file does not look to be a zip file!")
+            exit()
