@@ -3,9 +3,12 @@ import zipfile
 import re
 from sets import Set
 import tempfile
+import os
+import uuid
+import shutil
 
 # For now, usedIDs are loaded into a global variable (a set), then written out from there. 
-usedID = ([])
+usedID = Set([])
 
 # Same with the path to the usedID file. 
 usedID_file = ''
@@ -44,44 +47,54 @@ if __name__ == "__main__":
     # Setting the usedID_file variable!
     usedID_file = args.id_file
 
+    # Loading the used ID file for usage
+    load_ID()
+
     #regex for hex. If there is hex, we skip that line. 
-    code_hex = re.compile('0[xX][0-9a-fA-F]')
+    code_hex = re.compile('0[xX][0-9a-fA-F]{6}')
 
     #regex for timestamp (onset), so that we know there might be an annotation on this line
     code_time = re.compile("\d{2}\:\d{2}\:\d{2}\:\d{3}")
 
+    # Try to open the opf file as a zip file
+    if not args.opf_file.endswith('.opf'):
+        print("Supplied file does not have an .opf extension! Are you sure it is an opf file?")
+        exit()
+    
+    tempdir = tempfile.mkdtemp()
+    print(tempdir)
+    print('listing temp directory')
+    print(os.listdir(tempdir))
 
-        # Try to open the opf file as a zip file
-        try:
-            if not args.opf_file.endswith('.opf'):
-                print("Supplied file does not have an .opf extension!")
-            
-            # Opening the zipfile itself (not one of the member files)
-            with zipfile.ZipFile(args.opf_file, "r") as zf:
-                print("A zip file was supplied")
+    try:
+        with zipfile.ZipFile(args.opf_file) as zf:
+            print(zf.filename)
+            zf.extractall(tempdir)
+            print('listing temp directory')
+            print(os.listdir(tempdir))
 
-                # Making sure that the zip file contains a file called db. That appears to be a default for opf files. 
-                assert "db" in zf.namelist()
+        with open(os.path.join(tempdir, 'tmpfile'), 'w') as tmpfile:
+            with open(os.path.join(tempdir, 'db')) as dbf:
+                for line in dbf.readlines():
+                    #print(line)
+                    match = code_time.search(line)
+                    if match:
+                        annotid = code_hex.search(line)
+                        if not annotid:
+                            l_list = line.split(',')
+                            #print(l_list)
+                            l_list[-1] = randomID() + l_list[-1]
+                            #print(','.join(l_list))
+                            line = ','.join(l_list)
+                    tmpfile.write(line)
+                    
+        shutil.move(os.path.join(tempdir, 'tmpfile'), os.path.join(tempdir, 'db'))
+        with zipfile.ZipFile('temp.opf', 'w') as zf:
+            print(os.listdir(tempdir))
+            for item in os.listdir(tempdir):
+                zf.write(os.path.join(tempdir,item), item)
 
-                # The db file is the cha-like file which contains our annotations (and timestamps, etc.)
-                with zf.open("db") as db:
-                    for line in db:
-
-                        # Line contains a time stamp! Which means an annotation! 
-                        if code_time.search(line):
-
-                            # Check to see if the line already contains an annotid! If it does, continue
-                            if code_hex.search(line):
-                                print("matched")
-                                print(line)
-                                continue 
-
-                            # No annotid. Adding annotid to line here! 
-                            else:
-                                print('unmatched')
-                                print(line)
-
-
-        except(zipfile.BadZipfile):
-            print("Bad zip file! The file does not look to be a zip file!")
-            exit()
+        shutil.rmtree(tempdir)
+    except(zipfile.BadZipfile):
+        print("Bad zip file! The file does not look to be a zip file!")
+        exit()
