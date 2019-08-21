@@ -33,7 +33,8 @@ def randomID():
     randID = uuid.uuid4().hex[:6]
     while '0x'+randID in usedID:
         randID = uuid.uuid4().hex[:6]
-    usedID.add('0x'+randID)
+    randID = '0x' + randID
+    usedID.add(randID)
     return randID
     
    
@@ -90,6 +91,7 @@ if __name__ == "__main__":
                     
         shutil.move(os.path.join(tempdir, 'tmpfile'), os.path.join(tempdir, 'db'))
         with zipfile.ZipFile('temp.opf', 'w') as zf:
+            print('listing temp directory')
             print(os.listdir(tempdir))
             for item in os.listdir(tempdir):
                 zf.write(os.path.join(tempdir,item), item)
