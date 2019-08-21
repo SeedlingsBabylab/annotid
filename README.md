@@ -1,14 +1,34 @@
 # Video and Audio Annotation ID (annotid) Processing Scripts
 This repository contains scripts that perform the following tasks:
-1. Addition of ID to each cell in the video files
-2. Link the Pho references of the video cells based on onset offset times
-3. Addition of ID to %pho, %xcom, and annotations of the format [a-zA-Z]\_[a-zA-Z]\_[a-zA-Z]{3}
-4. Addition of ID references between pho and chi, as well as detecting audio annotation file errors along the way
-5. Check whether Annotation IDs are added to all words that are annotated. 
+1. Addition of ID to each cell in the video (.opf) files
+2. Additon of ID to each annotated cell in the audio (.cha) files.
 
-## Instruction
-All those scripts require setting the input/output file path inside of the script before running. To run the audio processing scripts, pyclan is required
+Unverified tasks that previous README contained, but I (Sarp) am not fully sure of:
+1. Link the Pho references of the video cells based on onset offset times
+2. Addition of ID to %pho, %xcom, and annotations of the format [a-zA-Z]\_[a-zA-Z]\_[a-zA-Z]{3}
+3. Addition of ID references between pho and chi, as well as detecting audio annotation file errors along the way
+4. Check whether Annotation IDs are added to all words that are annotated. 
 
+Please file issues if you encounter any bugs with as much detail as possible. 
+
+
+## Current Instructions
+
+### add_annotation_ID_video.py
+This script will add annotation IDs to opf files. It creates temporary directories/files to unzip
+then zip back the annotation IDs. The script takes two arguments: path to the opf file, and the
+path to the used ID file. Usage:
+
+`python add_annotation_ID_video.py /path/to/opf_file.opf /path/to/usedID.txt`
+
+### add-annotation_ID_audio.py
+This script will add annotation IDs to cha files. The instructions to run this script can be
+found in the gitbook, under the page "Audio Add Annotation IDs"
+
+## Past Instructions for past scripts
+
+All the scripts mentioned below have been moved into the old_scripts subdirectory for clean up.
+These instructions are for them. 
 
 ### retrieve_codes.py usage
 

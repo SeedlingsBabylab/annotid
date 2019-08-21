@@ -69,9 +69,9 @@ if __name__ == "__main__":
         print("Supplied file does not have an .opf extension! Are you sure it is an opf file?")
         exit()
     
+    # Making a temporary directory to extract the opf and then create it back again! 
     tempdir = tempfile.mkdtemp()
-    print(tempdir)
-    print('listing temp directory')
+    print('listing temporary directory')
     print(os.listdir(tempdir))
 
     try:
@@ -83,6 +83,7 @@ if __name__ == "__main__":
 
         with open(os.path.join(tempdir, 'tmpfile'), 'w') as tmpfile:
             with open(os.path.join(tempdir, 'db')) as dbf:
+                never = True
                 # Iterate through each line of db file, modify if necessary, and write it out!
                 for line in dbf.readlines():
                     # there is time onset data here! which means annotation!
@@ -91,13 +92,18 @@ if __name__ == "__main__":
                         annotid = code_hex.search(line)
                         # We check if there is already an annotid!
                         if not annotid:
+                            never = False
                             line = add_annotid_to_line(line)
+                            print('annotid was added to the line below. It looks like this:')
+                            print(line)
                     tmpfile.write(line)
+                if never:
+                    print("No annotation IDs were added! Make sure this is what you expected!")
                     
         shutil.move(os.path.join(tempdir, 'tmpfile'), os.path.join(tempdir, 'db'))
 
         # Collecting everything in the temporary directory into a new opf file. 
-        with zipfile.ZipFile('temp.opf', 'w') as zf:
+        with zipfile.ZipFile(args.opf_file, 'w') as zf:
             for item in os.listdir(tempdir):
                 zf.write(os.path.join(tempdir,item), item)
 
