@@ -37,6 +37,13 @@ def randomID():
     usedID.add(randID)
     return randID
     
+# Method that returns a line with annotid added! 
+def add_annotid_to_line(line):
+    l_list = line.split(',')
+    l_list[-1] = randomID() + l_list[-1]
+    return ','.join(l_list)
+
+    
    
 if __name__ == "__main__":
     # Code for argparse!
@@ -76,23 +83,21 @@ if __name__ == "__main__":
 
         with open(os.path.join(tempdir, 'tmpfile'), 'w') as tmpfile:
             with open(os.path.join(tempdir, 'db')) as dbf:
+                # Iterate through each line of db file, modify if necessary, and write it out!
                 for line in dbf.readlines():
-                    #print(line)
+                    # there is time onset data here! which means annotation!
                     match = code_time.search(line)
                     if match:
                         annotid = code_hex.search(line)
+                        # We check if there is already an annotid!
                         if not annotid:
-                            l_list = line.split(',')
-                            #print(l_list)
-                            l_list[-1] = randomID() + l_list[-1]
-                            #print(','.join(l_list))
-                            line = ','.join(l_list)
+                            line = add_annotid_to_line(line)
                     tmpfile.write(line)
                     
         shutil.move(os.path.join(tempdir, 'tmpfile'), os.path.join(tempdir, 'db'))
+
+        # Collecting everything in the temporary directory into a new opf file. 
         with zipfile.ZipFile('temp.opf', 'w') as zf:
-            print('listing temp directory')
-            print(os.listdir(tempdir))
             for item in os.listdir(tempdir):
                 zf.write(os.path.join(tempdir,item), item)
 

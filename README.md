@@ -1,5 +1,5 @@
-# Video Audio Annotation ID Processing Scripts
-This repository contains scripts that performs the following tasks:
+# Video and Audio Annotation ID (annotid) Processing Scripts
+This repository contains scripts that perform the following tasks:
 1. Addition of ID to each cell in the video files
 2. Link the Pho references of the video cells based on onset offset times
 3. Addition of ID to %pho, %xcom, and annotations of the format [a-zA-Z]\_[a-zA-Z]\_[a-zA-Z]{3}
