@@ -25,7 +25,7 @@ def load_ID():
 def write_ID():
     with open(usedID_file, 'w') as f:
         for id in usedID:
-            f.write(id)
+            f.write(id + '\n')
 
 # Method to generate random ID and check it against the usedID set (which is the set generated 
 # by reading through the usedID file. Need to come up with a better way to manage these. 
@@ -108,6 +108,7 @@ if __name__ == "__main__":
                 zf.write(os.path.join(tempdir,item), item)
 
         shutil.rmtree(tempdir)
+        write_ID()
     except(zipfile.BadZipfile):
         print("Bad zip file! The file does not look to be a zip file!")
         exit()
