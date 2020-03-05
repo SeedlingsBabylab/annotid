@@ -88,7 +88,7 @@ if __name__ == "__main__":
                     in_file = os.path.join(input_dir, file)
                     out_file = os.path.join(output_dir, file)
                     process_file(in_file, out_file)
-                except Exception,e:
+                except Exception as e:
                     print(e)
                     errorFiles.append(file)
             counter += 1
