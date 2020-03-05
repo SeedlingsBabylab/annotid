@@ -121,8 +121,7 @@ if __name__ == "__main__":
 
         shutil.move(
             os.path.join(
-                tempdir, 'tmpfile'), os.path.join(
-                tempdir, 'db'))
+                tempdir, 'tmpfile'), os.path.join(tempdir, 'db'))
 
         # Collecting everything in the temporary directory into a new opf file.
         with zipfile.ZipFile(args.opf_file, 'w') as zf:
@@ -131,6 +130,6 @@ if __name__ == "__main__":
 
         shutil.rmtree(tempdir)
         write_ID()
-    except(zipfile.BadZipfile):
+    except zipfile.BadZipfile:
         print("Bad zip file! The file does not look to be a zip file!")
         sys.exit()
