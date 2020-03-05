@@ -2,7 +2,6 @@ import os
 import platform
 import re
 import uuid
-from sets import Set
 import sys
 import argparse
 
@@ -70,7 +69,7 @@ if __name__ == "__main__":
         files.sort()
         errorFiles = []
         counter = 0
-        usedID = Set([])
+        usedID = set()
         #Load used IDs to prevent collision
         with open(usedID_file) as f:
             for line in f.readlines():
@@ -109,7 +108,7 @@ if __name__ == "__main__":
             out_file = in_file
         print(out_file)
         # retrieve used id
-        usedID = Set([])
+        usedID = set()
         with open(usedID_file) as f:
             for line in f.readlines():
                 usedID.add(line.rstrip())

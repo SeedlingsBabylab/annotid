@@ -1,14 +1,13 @@
 import argparse
 import zipfile
 import re
-from sets import Set
 import tempfile
 import os
 import uuid
 import shutil
 
 # For now, usedIDs are loaded into a global variable (a set), then written out from there. 
-usedID = Set([])
+usedID = set()
 
 # Same with the path to the usedID file. 
 usedID_file = ''
