@@ -1,2 +1,16 @@
 */output/*
 .DS_Store
+
+sample_data
+.idea
+*.pyc
+*.cha
+dist
+MANIFEST
+build
+.ipynb_checkpoints
+*.egg-info
+.vscode
+*.swp
+
+.*/

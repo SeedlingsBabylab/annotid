@@ -4,6 +4,7 @@ import re
 import uuid
 import sys
 import argparse
+from pyclan import ClanFile
 
 code_regx = re.compile('([a-zA-Z][a-z+]*)( +)(&=)([A-Za-z]{1})(_)([A-Za-z]{1})(_)([A-Z]{1}[A-Z0-9]{2})(_)?(0x[a-z0-9]{6})?', re.IGNORECASE | re.DOTALL)
 
@@ -14,46 +15,30 @@ def randomID():
     usedID.add('0x'+randID)
     return randID
 
-
-
 def process_file(ifile, out_file):
     print("opening")
-    with open(ifile) as in_file:
-        print("done opening")
-        out = []
-        for l in in_file:
-                matches = code_regx.findall(l)
-                new_line = l #.strip()
-                if len(matches)>0:     # if there is an annotation on the line
-                        # print(l)
-                        for match in matches:     # for each annotation
-                                # print(match, len(match))
-                                # print(match[-1], match[-2])
-                                if match[-1]=='' and match[-2]=='':    # if there is no id for this annot
-                                        # print(l.line)
-                                        # replace match by its ID-ed version
+    in_file = ClanFile(ifile)
+    in_file.annotate() # To fill the annotations
 
-                                        # print(''.join(match))
-                                        # print(re.sub(''.join(match), ''.join(match)+'_'+randomID(), new_line))
-                                        id = randomID()
-                                        # print(new_line)
-                                        new_line = new_line.replace(''.join(match)+' ', ''.join(match)+'_0x'+id+' ', 1)
-                                        # print(new_line)
-                                        print("adding 0x"+id)
-                                        pass
-                                else:                # if there is an id for this annot
-                                        pass            # do not change
-                # print(new_line)
-                out.append(new_line)
-    # print(out_file)
+    print("done opening")
+    out = []
+    for line in in_file.line_map:
+        if line.annotations: # if the annotations attribute is not empty
+            for annotation in line.annotations:     # for each annotation
+                if not annotation.annotation_id:    # if there is no id for this annot
+                        id = randomID()
+                        new_line = line.line.replace(repr(annotation), repr(annotation) + '_0x'+id+' ', 1)
+                        print("adding 0x"+id)
+                        pass
+                else:                # if there is an id for this annot
+                        pass            # do not change
+    out.append(new_line)
     with open(out_file, 'w') as f:
         for l in out:
             f.write(l)
 
 
 if __name__ == "__main__":
-
-
     input = sys.argv[1]
     if platform.system() != "Windows":
         usedID_file = "/Volumes/pn-opus/Seedlings/usedID.txt"
