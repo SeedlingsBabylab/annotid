@@ -5,14 +5,33 @@ import uuid
 import sys
 import argparse
 from pyclan import ClanFile
+import sqlite3
+
+
 
 code_regx = re.compile('([a-zA-Z][a-z+]*)( +)(&=)([A-Za-z]{1})(_)([A-Za-z]{1})(_)([A-Z]{1}[A-Z0-9]{2})(_)?(0x[a-z0-9]{6})?', re.IGNORECASE | re.DOTALL)
 
 def randomID():
-    randID = uuid.uuid4().hex[:6]
-    while '0x'+randID in usedID:
+    def generateID():
         randID = uuid.uuid4().hex[:6]
-    usedID.add('0x'+randID)
+        c.execute('SELECT * FROM annotations WHERE annotid=?', (randID,))
+        annotid = c.fetchall()
+        num = len(annotid)
+        return randID, num, annotid
+
+    randID, num, annotid = generateID()
+
+    while num > 0:
+        # FATAL ERROR: This means duplicate annotannotid :(
+        if num > 1:
+            print('FATAL ERROR: This means duplicate annotids :(')
+            print(annotid, num)
+            sys.exit()
+
+        # If the annotid exists (and only one exists), we spin, though this could/should be made more efficient...
+        else:
+            randID, num, annotid = generateID()
+    
     return randID
 
 def process_file(ifile, out_file):
@@ -28,10 +47,16 @@ def process_file(ifile, out_file):
                 if not annotation.annotation_id:    # if there is no id for this annot
                         id = randomID()
                         new_line = line.line.replace(repr(annotation), repr(annotation) + '_0x'+id+' ', 1)
+                        c.execute('INSERT INTO annotations VALUES (?, ?, ?, ?, ?)', (id, annotation.word, annotation.speaker, annotation.present, annotation.utt_type))
+                        conn.commit()
                         print("adding 0x"+id)
                         pass
-                else:                # if there is an id for this annot
-                        pass            # do not change
+
+                # if there is an id for this annot, check if it is duplicated in the database??
+                else:   
+                    c.execute('SELECT * FROM annotations WHERE annotid=?', (randID,))
+
+                    
     out.append(new_line)
     with open(out_file, 'w') as f:
         for l in out:
@@ -41,9 +66,21 @@ def process_file(ifile, out_file):
 if __name__ == "__main__":
     input = sys.argv[1]
     if platform.system() != "Windows":
-        usedID_file = "/Volumes/pn-opus/Seedlings/usedID.txt"
+        usedID_file = "./usedID.txt"
     else:
         usedID_file = "Z:\\Seedlings\\usedID.txt"
+
+    # Database connection established here
+    conn = sqlite3.connect('example.db')
+    c = conn.cursor()
+
+    # If table does not exist, create it, otherwise, continue
+    c.execute('SELECT name FROM sqlite_master WHERE type="table" AND name="annotations"')
+    if c.fetchone():
+        print("Database table was created")
+    else:
+        c.execute('''CREATE TABLE annotations 
+            (annotid text primary key, object text, speaker text, object_present text, utterance_type text)''')
 
     if not input.endswith(".cha"):
         input_dir = input
@@ -92,20 +129,12 @@ if __name__ == "__main__":
         else:
             out_file = in_file
         print(out_file)
-        # retrieve used id
-        usedID = set()
-        with open(usedID_file) as f:
-            for line in f.readlines():
-                usedID.add(line.rstrip())
-
-        # process file
-        # try:
         process_file(in_file, out_file)
-        # except Exception,e:
-        #     print(file)
-        #     print(e)
 
         # update used id
         with open(usedID_file, 'w') as f:
             for id in usedID:
                 f.write(id + '\n')
+    
+    conn.commit()
+    conn.close()
