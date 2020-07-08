@@ -14,12 +14,12 @@ Please file issues if you encounter any bugs with as much detail as possible.
 
 ## Current Instructions
 
-### add_annotation_ID_video.py
-This script will add annotation IDs to opf files. It creates temporary directories/files to unzip
-then zip back the annotation IDs. The script takes two arguments: path to the opf file, and the
-path to the used ID file. Usage:
+### add_annotation_id_video.py
+This script will add annotation IDs to opf files. You must have a settings.py file with configuration info 
+to connect to the database. Contact the lab tech if you are missing that file. More detailed instructions
+to run the script are [on gitbook](https://app.gitbook.com/@bergelsonlab/s/blab/data-pipeline/video/video-annotation-checks#1-run-add_annotation_id_video-py). 
 
-`python add_annotation_ID_video.py /path/to/opf_file.opf /path/to/usedID.txt`
+`python add_annotation_id_video.py /path/to/opf_file.opf
 
 ### add-annotation_ID_audio.py
 This script will add annotation IDs to cha files. The instructions to run this script can be
@@ -29,6 +29,13 @@ found in the gitbook, under the page "Audio Add Annotation IDs"
 
 All the scripts mentioned below have been moved into the old_scripts subdirectory for clean up.
 These instructions are for them. 
+
+### add_annotation_ID_video.py
+This script will add annotation IDs to opf files. It creates temporary directories/files to unzip
+then zip back the annotation IDs. The script takes two arguments: path to the opf file, and the
+path to the used ID file. Usage:
+
+`python add_annotation_ID_video.py /path/to/opf_file.opf /path/to/usedID.txt`
 
 ### retrieve_codes.py usage
 
