@@ -76,7 +76,12 @@ if __name__ == '__main__':
     opf_cells = read_opf('data/test.opf')
     cursor = connect_to_db()
 
+    for cell in opf_cells:
+        if not cell.get_code('id'):
+            add_annotid(cursor, cell)
 
+        else:
+            continue
 
 
     
