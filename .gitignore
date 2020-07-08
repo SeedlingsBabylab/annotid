@@ -14,3 +14,13 @@ build
 *.swp
 
 .*/
+
+.python-version
+
+*~
+
+settings.py
+
+# Directories for data, testing, etc.
+data/
+temp/
