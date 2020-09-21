@@ -8,15 +8,36 @@ from pyclan import ClanFile
 import mysql.connector
 from pdb import set_trace
 
+from mysql.connector import errorcode
+
 from settings import config
 
-cnx = mysql.connector.connect(**config)
-DB_NAME='annots' 
 
-TABLES = {}
 
-TABLES['annotations'] = '''CREATE TABLE IF NOT EXISTS annotations (annotid INT PRIMARY KEY, object text, speaker text, object_present text, utterance_type text)'''
+# This line needs to be here, otherwise gets garbage collected!
+sys.stdout.write('Connecting to the database\n')
 
+try:
+    cnx = mysql.connector.connect(**config)
+    cursor = cnx.cursor(buffered=True)
+
+except mysql.connector.Error as e:
+    print("Error code:", e.errno)
+    print("SQLSTATE value:", e.sqlstate)
+    print("Error message:", e.msg)
+    print("Error:", e)
+    s = str(e)
+    print("Error:", s)
+    sys.exit()
+
+
+add_cell = ("INSERT INTO annotations "
+        "(annotid, object, speaker, object_present, utterance_type, file, month) "
+        "VALUES (%s, %s, %s, %s, %s, %s, %s)")
+
+# Ugly code, but for now this is how we get the file name and month.
+FILE = ''
+MONTH = ''
 
 code_regx = re.compile('([a-zA-Z][a-z+]*)( +)(&=)([A-Za-z]{1})(_)([A-Za-z]{1})(_)([A-Z]{1}[A-Z0-9]{2})(_)?(0x[a-z0-9]{6})?', re.IGNORECASE | re.DOTALL)
 
@@ -43,8 +64,53 @@ def randomID():
     
     return randID
 
+def search_annotid(annotid):
+    cursor.execute('SELECT * FROM annotations WHERE annotid={}'.format(int(annotid, 16)))
+    return cursor.fetchall()
+
+def insert_annotation(annotation):
+    try:
+        rows = search_annotid(annotation.annotation_id)
+    except ValueError as e:
+        sys.stderr.write(str(e) + '\n')
+        sys.stderr.write(str(annotation) + '\n')
+
+    # if the annotid exists in the database, it has to be equal to the cell we are about to add!
+    # Otherwise, this might mean we have duplicates :(((
+    if rows:
+        if len(rows) > 1:
+            sys.stderr.write('Duplicates :(((( \n')
+            sys.stderr.write('The duplicated cell and the database row are:\n{}\n{}\n'.format(cell, row))
+
+        for row in rows:
+            if check_equal(annotation, row):
+                break
+            else:
+                sys.stderr.write('Duplicates :(((( \n')
+                sys.stderr.write('The duplicated cell and the database row are:\n{} from the file {}_{} and \n{}\n'.format(cell, FILE, MONTH, row))
+
+
+    else:
+        data_cell = (
+                int(cell.get_code('id'), 16),
+                cell.get_code('object'),
+                cell.get_code('speaker'),
+                cell.get_code('object_present'),
+                cell.get_code('utterance_type'),
+                FILE,
+                MONTH
+                )
+        cursor.execute(add_cell, data_cell)
+        cnx.commit()
+
+
 def process_file(ifile, out_file):
+    global FILE, MONTH
+    FILE = os.path.basename(ifile).split('_')[0]
+    MONTH = os.path.basename(ifile).split('_')[1]
+    sys.stdout.write("File: {} \t Month: {} \n".format(FILE, MONTH))
     print("opening")
+    sys.stdout.write('Handling {}\n'.format(ifile))
     in_file = ClanFile(ifile)
     in_file.annotate() # To fill the annotations
 
@@ -55,11 +121,19 @@ def process_file(ifile, out_file):
             for annotation in line.annotations:     # for each annotation
                 if not annotation.annotation_id:    # if there is no id for this annot
                         id = randomID()
-                        cursor.execute('INSERT INTO annotations VALUES (%s, %s, %s, %s, %s)', (str(int(id, 16)), annotation.word, annotation.speaker, annotation.present, annotation.utt_type))
-                        cnx.commit()
-                        print("adding 0x"+id)
-                        #annotation.annotation_id = '0x' + id
-                        line.line = line.line.replace(repr(annotation), repr(annotation) + '_0x'+id+' ', 1)
+                        try:
+                            annot_dict = (str(int(id, 16)), annotation.word, annotation.speaker, annotation.present, annotation.utt_type, FILE, MONTH)
+                            cursor.execute(add_cell, annot_dict)
+                            cnx.commit()
+                        except mysql.connector.Error as e:
+                            sys.stderr.write("Error occurred!\n")
+                            sys.stderr.write("{}\n".format(annot_dict))
+                        
+                            
+                        else:
+                            sys.stdout.write("adding 0x{}\n".format(id))
+                            #annotation.annotation_id = '0x' + id
+                            line.line = line.line.replace(repr(annotation), repr(annotation) + '_0x'+id+' ', 1)
 
                 # if there is an id for this annot, check if it is duplicated in the database??
                 else:   
@@ -73,58 +147,11 @@ def process_file(ifile, out_file):
 
     in_file.write_to_cha(out_file)
 
-def create_database(cursor):
-    try:
-        cursor.execute(
-            "CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8'".format(DB_NAME))
-    except mysql.connector.Error as err:
-        print("Failed creating database: {}".format(err))
-        exit(1)
-
-
-
-
-if __name__ == "__main__":
-    input = sys.argv[1]
-    # Database connection established here
-    cursor = cnx.cursor()
-    try:
-        cursor.execute("USE {}".format(DB_NAME))
-    except mysql.connector.Error as err:
-        print("Database {} does not exists.".format(DB_NAME))
-        print("FATAL ERROR, GO FIND SARP AND TALK TO HIM. THIS IS VERY BAD. YOU CAN PANIC. YOU SHOULD PANIC.")
-        print("THIS PROGRAM HAS PERFORMED AN ILLEGAL OPERATION AND THERE MIGHT BE LEGAL CONSEQUENCES FOR YOU. YOU HAVE BEEN REALLY REALL BAD. LIKE VERY BAD.")
-        print("On a side note though the issue is database related.")
-        exit(1)
-        if err.errno == errorcode.ER_BAD_DB_ERROR:
-            create_database(cursor)
-            print("Database {} created successfully.".format(DB_NAME))
-            cnx.database = DB_NAME
-        else:
-            print(err)
-            exit(1)
-
-    # If table does not exist, create it, otherwise, continue
-    for table_name in TABLES:
-        table_description = TABLES[table_name]
-        try:
-            print("Creating table {}: ".format(table_name))
-            cursor.execute(table_description)
-        except mysql.connector.Error as err:
-            print(err.msg)
-
-
-
-    in_file = input
-    if (len(sys.argv)>2):
-        out_file = sys.argv[2]
-    else:
-        out_file = in_file
-    print(out_file)
-    process_file(in_file, out_file)
-
     cursor.close()
     cnx.close()
+
+if __name__ == "__main__":
+    process_file(sys.argv[1], sys.argv[1])
 
 
     
