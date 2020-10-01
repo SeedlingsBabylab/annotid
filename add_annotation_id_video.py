@@ -116,6 +116,7 @@ def insert_annotation(cell):
         sys.stderr.write(str(e) + '\n')
         sys.stderr.write(str(cell) + '\n')
 
+
     # if the annotid exists in the database, it has to be equal to the cell we are about to add!
     # Otherwise, this might mean we have duplicates :(((
     if rows:
@@ -162,7 +163,7 @@ def main(file_path):
             continue
 
         # If the cell does not have an annotation id, we add one. 
-        if not cell.get_code('id'):
+        if cell.get_code('id') == '<id>' or not cell.get_code('id'):
             try:
                 annotid = add_annotid(cell)
             except Exception as e:
