@@ -60,4 +60,4 @@ One time script that moved files with no_id in name to folder named old_files
  
 ### undo_id
 
-Removes all annotid from file
+Removes all annotid from file.
