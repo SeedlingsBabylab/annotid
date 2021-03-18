@@ -133,7 +133,7 @@ def process_file(ifile, out_file):
                         else:
                             sys.stdout.write("adding 0x{}\n".format(id))
                             #annotation.annotation_id = '0x' + id
-                            line.line = line.line.replace(repr(annotation), repr(annotation) + '_0x'+id+' ', 1)
+                            line.line = line.line.replace(repr(annotation) + ' ', repr(annotation) + '_0x'+id+' ', 1)
 
                 # if there is an id for this annot, check if it is duplicated in the database??
                 else:   
