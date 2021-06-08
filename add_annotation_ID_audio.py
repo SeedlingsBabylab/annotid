@@ -147,11 +147,15 @@ def process_file(ifile, out_file):
 
     in_file.write_to_cha(out_file)
 
+
+def close_connection():
     cursor.close()
     cnx.close()
 
+
 if __name__ == "__main__":
     process_file(sys.argv[1], sys.argv[1])
+    close_connection()
 
 
     
