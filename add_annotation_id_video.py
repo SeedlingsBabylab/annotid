@@ -95,16 +95,16 @@ def check_equal(cell1, cell2):
             cell1.get_code('speaker') == cell2[2] and
             cell1.get_code('object_present') == cell2[3] and
             cell1.get_code('utterance_type') == cell2[4] and
-            FILE == cell2[5] and
-            MONTH == cell2[6]
+            int(FILE) == cell2[5] and
+            int(MONTH) == cell2[6]
             )
 
 
 # Very basic function to check whether two annotations with the same ID are duplicates OR just a change from reliability
 def check_change(cell, row):
     return (
-            FILE == row[5] and
-            MONTH == row[6]
+            int(FILE) == row[5] and
+            int(MONTH) == row[6]
             )
 
     
@@ -171,9 +171,6 @@ def main(file_path):
             else:
                 sys.stdout.write('Adding {}\n'.format(annotid))
                 cell.change_code('id', '0x' + annotid)
-
-
-
 
         # If the cell does have an annotation id, we check/insert that into the database. 
         else:
