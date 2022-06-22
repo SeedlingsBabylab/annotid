@@ -14,7 +14,7 @@ idna==2.10
 importlib-metadata==1.7.0
 more-itertools==8.4.0
 mysql-connector-python==8.0.20
-numpy==1.19.0
+numpy==1.22.0
 packaging==20.4
 pandas==1.0.5
 pathspec==0.8.0
