@@ -13,6 +13,8 @@ from mysql.connector import errorcode
 from settings import config
 
 
+ANNOTATIONS_TABLE = 'annotids'
+
 
 # This line needs to be here, otherwise gets garbage collected!
 sys.stdout.write('Connecting to the database\n')
@@ -31,9 +33,10 @@ except mysql.connector.Error as e:
     sys.exit()
 
 
-add_cell = ("INSERT INTO annotations "
-        "(annotid, object, speaker, object_present, utterance_type, file, month) "
-        "VALUES (%s, %s, %s, %s, %s, %s, %s)")
+add_cell = (f"INSERT INTO {ANNOTATIONS_TABLE} "
+            "(annotid) "
+            "VALUES (%s)")
+
 
 # Ugly code, but for now this is how we get the file name and month.
 FILE = ''
@@ -44,8 +47,7 @@ code_regx = re.compile('([a-zA-Z][a-z+]*)( +)(&=)([A-Za-z]{1})(_)([A-Za-z]{1})(_
 def randomID():
     def generateID():
         randID = uuid.uuid4().hex[:6]
-        cursor.execute('SELECT * FROM annotations WHERE annotid={}'.format(int(randID, 16)))
-        annotid = cursor.fetchall()
+        annotid = search_annotid(randID)
         num = len(annotid)
         return randID, num, annotid
 
@@ -64,9 +66,11 @@ def randomID():
     
     return randID
 
+
 def search_annotid(annotid):
-    cursor.execute('SELECT * FROM annotations WHERE annotid={}'.format(int(annotid, 16)))
+    cursor.execute(f'SELECT * FROM {ANNOTATIONS_TABLE} WHERE annotid = "{annotid}"')
     return cursor.fetchall()
+
 
 def insert_annotation(annotation):
     try:
@@ -92,13 +96,7 @@ def insert_annotation(annotation):
 
     else:
         data_cell = (
-                int(cell.get_code('id'), 16),
-                cell.get_code('object'),
-                cell.get_code('speaker'),
-                cell.get_code('object_present'),
-                cell.get_code('utterance_type'),
-                FILE,
-                MONTH
+                randID
                 )
         cursor.execute(add_cell, data_cell)
         cnx.commit()
@@ -122,7 +120,7 @@ def process_file(ifile, out_file):
                 if not annotation.annotation_id:    # if there is no id for this annot
                         id = randomID()
                         try:
-                            annot_dict = (str(int(id, 16)), annotation.word, annotation.speaker, annotation.present, annotation.utt_type, FILE, MONTH)
+                            annot_dict = (id,)
                             cursor.execute(add_cell, annot_dict)
                             cnx.commit()
                         except mysql.connector.Error as e:
@@ -136,9 +134,8 @@ def process_file(ifile, out_file):
                             line.line = line.line.replace(repr(annotation) + ' ', repr(annotation) + '_0x'+id+' ', 1)
 
                 # if there is an id for this annot, check if it is duplicated in the database??
-                else:   
-                    cursor.execute('SELECT * FROM annotations WHERE annotid={}'.format(int(annotation.annotation_id,16)))
-                    annotid = cursor.fetchall()
+                else:
+                    annotid = search_annotid(annotation.annotation_id)
                     num = len(annotid)
                     if num > 1:
                         print('FATAL ERROR: This means duplicate annotids :(')

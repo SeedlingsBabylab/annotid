@@ -13,17 +13,20 @@ and other issues.
 
 """
 
+ANNOTATIONS_TABLE = 'annotids'
+
 # This line needs to be here, otherwise gets garbage collected!
 cnx = mysql.connector.connect(**config)
 cursor = cnx.cursor(buffered=True)
 
-add_cell = ("INSERT INTO annotations "
-        "(annotid, object, speaker, object_present, utterance_type, file, month) "
-        "VALUES (%s, %s, %s, %s, %s, %s, %s)")
+add_cell = (f"INSERT INTO {ANNOTATIONS_TABLE} "
+        "(annotid) "
+        "VALUES (%s)")
 
 # Ugly code, but for now this is how we get the file name and month.
 FILE = ''
 MONTH = ''
+
 
 def read_opf(path):
     """ Read an opf file and return the chronologically sorted cells """
@@ -50,8 +53,9 @@ def read_opf(path):
     return opf_file
 
 def search_annotid(annotid):
-    cursor.execute('SELECT * FROM annotations WHERE annotid={}'.format(int(annotid, 16)))
+    cursor.execute(f'SELECT * FROM {ANNOTATIONS_TABLE} WHERE annotid = "{annotid}"')
     return cursor.fetchall()
+
 
 def add_annotid(cell):
     def generateID():
@@ -74,13 +78,7 @@ def add_annotid(cell):
             randID, num, annotid = generateID()
 
     data_cell = (
-            int(randID, 16), 
-            cell.get_code('object'),
-            cell.get_code('speaker'),
-            cell.get_code('object_present'),
-            cell.get_code('utterance_type'),
-            FILE,
-            MONTH
+            randID
             )
 
     cursor.execute(add_cell, data_cell)
@@ -100,14 +98,6 @@ def check_equal(cell1, cell2):
             )
 
 
-# Very basic function to check whether two annotations with the same ID are duplicates OR just a change from reliability
-def check_change(cell, row):
-    return (
-            FILE == row[5] and
-            MONTH == row[6]
-            )
-
-    
 def insert_annotation(cell):
 
     try:
@@ -128,9 +118,6 @@ def insert_annotation(cell):
             if check_equal(cell, row):
                 break
 
-            # We check to see whether the cell and row are from the same file with maybe a minor difference, which more than likely indicates a change made during reliability
-            elif check_change(cell, row):
-                break
             else:
                 sys.stderr.write('Duplicates :(((( \n')
                 sys.stderr.write('The duplicated cell and the database row are:\n{} from the file {}_{} and \n{}\n'.format(cell, FILE, MONTH, row))
@@ -138,16 +125,11 @@ def insert_annotation(cell):
 
     else:
         data_cell = (
-                int(cell.get_code('id'), 16),
-                cell.get_code('object'),
-                cell.get_code('speaker'),
-                cell.get_code('object_present'),
-                cell.get_code('utterance_type'),
-                FILE,
-                MONTH
+                cell.get_code('id'),
                 )
         cursor.execute(add_cell, data_cell)
         cnx.commit()
+
 
 def main(file_path):
     opf_file = read_opf(file_path)
@@ -182,6 +164,7 @@ def main(file_path):
     cursor.close()
     cnx.close()
     pyvyu.save_opf(opf_file, sys.argv[1], overwrite_project=True)
+
 
 if __name__ == '__main__':
     main(sys.argv[1])
