@@ -1,0 +1,3 @@
+[submodule "pyclan"]
+	path = archived/pyclan
+	url = https://github.com/SeedlingsBabylab/pyclan.git
