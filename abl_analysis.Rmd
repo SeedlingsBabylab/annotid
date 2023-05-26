@@ -1,0 +1,44 @@
+---
+title: "dup_usedID"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r get_abl}
+abl <- read.csv("/Volumes/pn-opus/Seedlings/Code/blab/output_abl_03-22-19/all_basiclevel.csv", colClasses=c("character","character","character","character","character","character","character","character","character","character","character","character","character","character","character"))
+
+all_paths <- read.csv("~/scatter/path_files/cha_sparse_code_paths.txt", header=F)
+```
+
+```{r lib_data}
+library(tidyverse)
+
+dup <- abl %>%
+  group_by(annotid) %>%
+  count() %>%
+  filter(n>1)
+
+dup_files <- abl %>%
+  filter(annotid %in% dup$annotid) %>%
+  select(SubjectNumber, annotid, audio_video)
+
+audio_dup_files <- dup_files %>%
+  filter(audio_video=="audio")
+
+all_paths_sep <- all_paths %>%
+  mutate(file = V1) %>%
+  separate(V1, c("bl", "vol", "pn", "seed", "subj_files", "subj", "subj_mo", "home", "coding", "audio", "name"), sep='/') %>%
+  select(subj_mo, file)
+
+# merged <- merge(audio_dup_files, all_paths_sep, by.x="SubjectNumber", by.y="subj_mo") %>%
+  select(file, annotid)
+
+# write_csv(merged, "merged_fullpath_id.csv")
+
+```
+
+

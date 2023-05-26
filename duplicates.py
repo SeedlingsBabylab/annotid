@@ -3,8 +3,8 @@ import csv
 import add_annotation_ID_audio as audio
 import add_annotation_id_video as video
 
-CHA_PATH='/home/sarp/work/BergelsonLab/annotated_cha/annotated_cha'
-OPF_PATH='/home/sarp/work/BergelsonLab/annotated_opf/annotated_opf'
+CHA_PATH='/Volumes/pn-opus/Seedlings/Working_Files/collect_files_duplicates/audio/chas'
+OPF_PATH='/Volumes/pn-opus/Seedlings/Working_Files/collect_files_duplicates/video/opfs'
 
 
 def run_annotid_script(ddict):
@@ -31,6 +31,3 @@ with open('final_duplicates.csv') as inf:
             ddict[row['annotid']] = [parse_name(row)]
 
     run_annotid_script(ddict)
-
-        
-

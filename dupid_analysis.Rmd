@@ -1,0 +1,49 @@
+---
+title: "dup_usedID"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r lib_data}
+library(tidyverse)
+usedid_vid <- read.csv("/Volumes/pn-opus/Seedlings/Scripts_and_Apps/Github/seedlings/annotid/old_data/usedID_video9.csv", header=F,colClasses=c("character","character"))
+usedid_aud <- read.csv("/Volumes/pn-opus/Seedlings/Scripts_and_Apps/Github/seedlings/annotid/old_data/usedID_audio9.csv", header=F,colClasses=c("character","character"))
+
+usedid_all <- read.csv("/Volumes/pn-opus/Seedlings/usedID.txt", header=F, colClasses=c("character"))
+
+dup <- usedid_vid %>%
+  mutate(file=V1, code=V2) %>%
+  group_by(file, code) %>%
+  count() %>%
+  filter(n>1) #%>%
+  # group_by(file) %>%
+  # count()
+
+
+
+audio_video <- rbind(usedid_aud, usedid_vid)
+
+dup2 <- audio_video %>%
+  mutate(file=V1, code=V2) %>%
+  group_by(code) %>%
+  count() %>%
+  filter(n>1)
+
+file_dup <- audio_video %>%
+  mutate(file=V1, code=V2) %>%
+  filter(code %in% dup2$code)
+
+untracked <- audio_video %>%
+  filter(!(V2 %in% usedid_all$V1))
+
+# write(untracked$V2, "/Volumes/pn-opus/Seedlings/Scripts_and_Apps/Github/seedlings/annotid/untracked.csv")
+
+```
+
+```{r save}
+name <- "/Volumes/pn-opus/Seedlings/Scripts_and_Apps/Github/seedlings/annotid/usedID_all_dup.csv"
+write_csv(file_dup, name)
+```
